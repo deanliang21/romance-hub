@@ -139,4 +139,3 @@ model NotificationConfig {
   @@unique([notifyType, userEmail])
   @@map("notification_configs")
 }
-change provider to mysql
