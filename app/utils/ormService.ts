@@ -251,14 +251,22 @@ export class TaskService {
     taskImage: string;
     taskScore: number;
     receiverEmail?: string;
-  }) {
+}) {
+    const { publisherEmail, taskScore, ...rest } = data;
+    // 如果 taskScore 为 null 或 undefined，则默认为 0
+    const score = taskScore ?? 0;
+    
     return await prisma.taskList.create({
-      data: {
-        ...data,
-        taskStatus: '未开始'
-      }
+        data: {
+            ...rest,
+            taskScore: score,
+            publisher: {
+                connect: { userEmail: publisherEmail }
+            },
+            taskStatus: '未开始'
+        }
     });
-  }
+}
 
   // 检查任务权限
   static async checkTaskPermission(taskId: number) {
