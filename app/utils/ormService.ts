@@ -252,19 +252,29 @@ export class TaskService {
     taskScore: number;
     receiverEmail?: string;
 }) {
-    const { publisherEmail, taskScore, ...rest } = data;
+    const { publisherEmail, receiverEmail, taskScore, ...rest } = data;
     // 如果 taskScore 为 null 或 undefined，则默认为 0
     const score = taskScore ?? 0;
     
+    // 构建 Prisma 需要的输入对象
+    const createData: any = {
+        ...rest,
+        taskScore: score,
+        publisher: {
+            connect: { userEmail: publisherEmail }
+        },
+        taskStatus: '未开始'
+    };
+
+    // 如果有 receiverEmail，则通过 receiver 关系连接
+    if (receiverEmail) {
+        createData.receiver = {
+            connect: { userEmail: receiverEmail }
+        };
+    }
+
     return await prisma.taskList.create({
-        data: {
-            ...rest,
-            taskScore: score,
-            publisher: {
-                connect: { userEmail: publisherEmail }
-            },
-            taskStatus: '未开始'
-        }
+        data: createData
     });
 }
 
